@@ -3,12 +3,48 @@ from rest_framework import status
 
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.response import Response
-from .serializer import TodoSerializer
+from .serializer import TodoSerializer, UserSerializer
 from base.models import Todo
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
+from django.contrib.auth import get_user_model
+from rest_framework.exceptions import AuthenticationFailed
+from django.contrib.auth.models import User
+import datetime
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authtoken.models import Token
+
 from rest_framework.views import APIView
+
+
+class RegisterView(APIView):
+    def post(self, request):
+        serializer = UserSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+    
+class LoginView(APIView):
+    def post(self, request):
+        username = request.data['username']
+        password = request.data['password']
+        user = User.objects.filter(username=username).first()
+
+        if user is None:
+            raise AuthenticationFailed('User not found')
+        if not user.check_password(password):
+            raise AuthenticationFailed('Incorrect password')
+        
+        token = Token.objects.get(user=user)
+        # token, created = Token.objects.get_or_create(user=user)
+        return Response({
+            "message":"Success login",
+            "token": token.key,
+            "user_id":user.pk
+        })
+
+
 
 
 # Create your views here.   
@@ -123,14 +159,43 @@ from rest_framework.views import APIView
 #         })
 
 ##############APIView#############
+class TodoListView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    
+
+    def get(self, request):
+        # print(request.user)
+        # User = get_user_model()
+        # users = User.objects.all()
+
+        todo_objs = Todo.objects.filter(user= request.user)
+
+        serializer = TodoSerializer(todo_objs, many=True)
+
+        return Response({
+            # 'status':True,
+            # 'message':'Todo fetched data',
+            'username':str(request.user),
+            # 'users': str(users),
+            'data':serializer.data
+        })
+        # return Response(data=serializer.data)
+    
 
 class TodoView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
+    
+
+    def get(self, request, pk):
         # print(request.user)
-        todo_objs = Todo.objects.filter(user= request.user)
+        # User = get_user_model()
+        # users = User.objects.all()
+
+        todo_objs = Todo.objects.filter(id=pk)
 
         serializer = TodoSerializer(todo_objs, many=True)
 
@@ -138,8 +203,10 @@ class TodoView(APIView):
             'status':True,
             'message':'Todo fetched data',
             'user':str(request.user),
+            # 'users': str(users),
             'data':serializer.data
         })
+
     
     def post(self, request):
         try:
@@ -168,25 +235,29 @@ class TodoView(APIView):
             'message': 'something went wrong'
         })
     
-    def patch(self, request):
+    def patch(self, request, pk):
         try:
+            
             data = request.data
+            # data._mutable=True # accept the request in form data
             data['user'] = request.user.id
-            if not data.get('id'):
-                return Response({
-                    'status':False,
-                    'message': 'id is required',
-                    'data':{}
-                })
-            obj = Todo.objects.get(id=data.get('id'))
+            # if not data.get('id'):
+            #     return Response({
+            #         'status':False,
+            #         'message': 'id is required',
+            #         'data':{}
+            #     })
+            # obj = Todo.objects.get(id=data.get('id'))
+            obj = Todo.objects.get(id=pk)
             serializer = TodoSerializer(obj, data=data, partial=True)
             if serializer.is_valid():
                 serializer.save()
-                return Response({
-                    'status': True,
-                    'message': 'Patch succesfull',
-                    'data': serializer.data
-                })
+                # return Response({
+                #     'status': True,
+                #     'message': 'Patch succesfull',
+                #     'data': serializer.data
+                # })
+                return Response(data=serializer.data)
         
             return Response({
                 'status':False,
@@ -202,10 +273,13 @@ class TodoView(APIView):
                 'data': {}
             })
     
-    def delete(self, request):
+        
+    
+    def delete(self, request, pk):
         try:
             data = request.data
-            obj = Todo.objects.get(id=data.get('id'))
+            # obj = Todo.objects.get(id=data.get('id'))
+            obj = Todo.objects.get(id=pk)
             if obj.user.id == request.user.id:
                 obj.delete()
                 return Response({
