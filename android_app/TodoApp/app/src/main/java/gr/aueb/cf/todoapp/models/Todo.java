@@ -3,6 +3,22 @@ package gr.aueb.cf.todoapp.models;
 import com.google.gson.annotations.SerializedName;
 
 public class Todo {
+    @SerializedName("id")
+    private int id;
+    @SerializedName("title")
+    private String title;
+    @SerializedName("description")
+    private String description;
+    @SerializedName("complete")
+    private boolean complete;
+    @SerializedName("created")
+    private String created;
+    @SerializedName("user")
+    private int user;
+
+    public Todo() {
+    }
+
     public Todo(int id, String title, String description, boolean complete, String created, int user) {
         this.id = id;
         this.title = title;
@@ -11,19 +27,6 @@ public class Todo {
         this.created = created;
         this.user = user;
     }
-
-    @SerializedName("id")
-    public int id;
-    @SerializedName("title")
-    public String title;
-    @SerializedName("description")
-    public String description;
-    @SerializedName("complete")
-    public boolean complete;
-    @SerializedName("created")
-    public String created;
-    @SerializedName("user")
-    public int user;
 
     public int getId() {
         return id;

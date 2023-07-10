@@ -23,7 +23,16 @@ class RegisterView(APIView):
         serializer = UserSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data)
+        username = request.data['username']
+        user = User.objects.filter(username=username).first()
+        token = Token.objects.get(user=user)
+        # return Response(serializer.data)
+        return Response({
+                # "message":"Success login",
+                "token": token.key,
+                # "user_id":user.pk,
+                # "username":user.username
+            })
     
 class LoginView(APIView):
     def post(self, request):
@@ -39,9 +48,10 @@ class LoginView(APIView):
         token = Token.objects.get(user=user)
         # token, created = Token.objects.get_or_create(user=user)
         return Response({
-            "message":"Success login",
+            # "message":"Success login",
             "token": token.key,
-            "user_id":user.pk
+            # "user_id":user.pk,
+            # "username":user.username
         })
 
 
@@ -182,32 +192,6 @@ class TodoListView(APIView):
             'data':serializer.data
         })
         # return Response(data=serializer.data)
-    
-
-class TodoView(APIView):
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
-
-    
-
-    def get(self, request, pk):
-        # print(request.user)
-        # User = get_user_model()
-        # users = User.objects.all()
-
-        todo_objs = Todo.objects.filter(id=pk)
-
-        serializer = TodoSerializer(todo_objs, many=True)
-
-        return Response({
-            'status':True,
-            'message':'Todo fetched data',
-            'user':str(request.user),
-            # 'users': str(users),
-            'data':serializer.data
-        })
-
-    
     def post(self, request):
         try:
             data = request.data
@@ -234,6 +218,58 @@ class TodoView(APIView):
             'status':400,
             'message': 'something went wrong'
         })
+    
+
+class TodoView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    
+
+    def get(self, request, pk):
+        # print(request.user)
+        # User = get_user_model()
+        # users = User.objects.all()
+
+        todo_objs = Todo.objects.filter(id=pk)
+
+        serializer = TodoSerializer(todo_objs, many=True)
+
+        return Response({
+            'status':True,
+            'message':'Todo fetched data',
+            'user':str(request.user),
+            # 'users': str(users),
+            'data':serializer.data
+        })
+
+    
+    # def post(self, request):
+    #     try:
+    #         data = request.data
+    #         # print(data)
+    #         data['user'] = request.user.id
+    #         serializer = TodoSerializer(data=data)
+    #         if serializer.is_valid():
+    #             # print(serializer.data)
+    #             serializer.save()
+    #             return Response({
+    #                 'status': True,
+    #                 'message': 'Success data',
+    #                 'data': serializer.data
+    #             })
+    #         return Response({
+    #             'status':False,
+    #             'message':'invalid data',
+    #             'data': serializer.errors
+    #         })
+    #     except Exception as e:
+    #         print(e)
+
+    #     return Response({
+    #         'status':400,
+    #         'message': 'something went wrong'
+    #     })
     
     def patch(self, request, pk):
         try:

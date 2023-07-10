@@ -140,7 +140,7 @@ REST_FRAMEWORK = {
 AUTH_TOKEN_VALIDITY = getattr(settings, 'AUTH_TOKEN_VALIDITY', timedelta(minutes=30))
 SESSION_EXPIRE_SECONDS = 1800  # Expire after 30 minutes
 SESSION_EXPIRE_AFTER_LAST_ACTIVITY = True
-SESSION_TIMEOUT_REDIRECT = '' # Add your URL
+SESSION_TIMEOUT_REDIRECT = 'base/login/' # Add your URL
 
 # to delete after testing
 # python manage.py runserver 0.0.0.0:8000

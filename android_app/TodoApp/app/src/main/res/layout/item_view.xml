@@ -1,18 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+<LinearLayout
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="50dp"
-    android:layout_weight="10"
-    android:paddingStart="7dp"
-    android:paddingEnd="7dp"
+    android:weightSum="20"
+    android:paddingStart="10dp"
+    android:paddingEnd="10dp"
     android:paddingTop="7dp"
-    android:paddingBottom="7dp">
+    android:paddingBottom="7dp"
+    >
 
     <ImageView
         android:id="@+id/completeRV"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         android:src="@drawable/ic_not_complete"
         android:layout_weight="1"
         android:layout_gravity="center_vertical"
@@ -20,19 +26,29 @@
     <TextView
         android:id="@+id/titleRV"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         android:text="todo title"
-        android:layout_weight="8"
+        android:layout_weight="18"
         android:textAlignment="center"
-        android:textSize="24sp"
+        android:layout_gravity="center_horizontal"
+        android:textSize="22sp"
+        android:maxLines="1"
+        android:ems="8"
         />
     <ImageView
         android:id="@+id/deleteRV"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         android:src="@drawable/ic_delete"
         android:layout_weight="1"
+
         android:layout_gravity="center_vertical"
         />
-
+</LinearLayout>
+    <com.google.android.material.divider.MaterialDivider
+        android:layout_width="match_parent"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_height="1dp"
+        app:dividerColor="?attr/colorOutlineVariant"/>
 </LinearLayout>
